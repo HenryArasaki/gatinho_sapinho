@@ -3,7 +3,7 @@ const c = canvas.getContext('2d')
 
 const gatinho_sprite = new Image()
 gatinho_sprite.src = './assets/sprite_gatinho.png'
-gatinho_sprite.onload = loadImages
+
 let playerSprite_cols = 4
 let playerSprite_rows = 2
 let playerSprite_height = gatinho_sprite.height / playerSprite_rows
@@ -15,10 +15,11 @@ let playerSprite_positionY = 0
 
 
 
-let numOfImages = 1
-function loadImages() {
-    if (--numOfImages > 0) return
-}
+// let numOfImages = 1
+// function loadImages() {
+//     if (--numOfImages > 0) return
+//     animate()
+// }
 
 let frameContador = 0
 
@@ -176,4 +177,5 @@ const player = new Player()
 
 plataforms.push(new Plataform(400, 600))
 plataforms.push(new Plataform(100, 300))
-animate()
+// animate()    
+gatinho_sprite.onload = animate()
