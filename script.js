@@ -29,17 +29,14 @@ let coin_sprite_positionY = 0
 
 let coins = []
 
+
+const plataform_sprite = new Image()
+plataform_sprite.src = './assets/sprite_plataform.png'
+
+
 const ground_sprite = new Image()
 ground_sprite.src = './assets/sprite_ground.png'
 
-let ground_sprite_cols = 6
-let ground_sprite_rows = 1
-let ground_sprite_height = ground_sprite.height / ground_sprite_rows
-let ground_sprite_width = ground_sprite.width / ground_sprite_cols
-let ground_sprite_totalFrames = 6
-let ground_sprite_currentFrame = 0
-let ground_sprite_positionX = 0
-let ground_sprite_positionY = 0
 
 let tipoFPS = 0
 
@@ -49,7 +46,7 @@ c.imageSmoothingEnabled = false
 
 let plataforms = []
 
-const gravity = 1
+const gravity = 0.8
 let jump = 0
 const keys = {
     right: {
@@ -98,7 +95,7 @@ class Player {
 
     }
     animation() {
-        if (this.velocity.y == 0) {
+        if (this.velocity.y == 0 || this.velocity.y == gravity) {
             if (keys.left.pressed == true) gatinho_sprite_positionY = gatinho_sprite_height
             if (keys.right.pressed == true) gatinho_sprite_positionY = 0
             if (keys.right.pressed == false && keys.left.pressed == false) {
@@ -106,11 +103,11 @@ class Player {
                 else gatinho_sprite_positionY = gatinho_sprite_height * 3
             }
         }
-        else if(this.velocity.y < 0){
+        else if (this.velocity.y < 0) {
             if (looking == "right") gatinho_sprite_positionY = gatinho_sprite_height * 4
             else gatinho_sprite_positionY = gatinho_sprite_height * 5
         }
-        else if(this.velocity.y > 0){
+        else if (this.velocity.y > 0) {
             if (looking == "right") gatinho_sprite_positionY = gatinho_sprite_height * 6
             else gatinho_sprite_positionY = gatinho_sprite_height * 7
         }
@@ -136,17 +133,37 @@ class JumpBar {
 }
 
 class Plataform {
-    constructor(positionx, positiony) {
+    constructor(positionx, positiony, sx, sy) {
         this.position = {
             x: positionx,
             y: positiony
         }
-        this.width = 400
+        this.sx = sx
+        this.sy = sy
         this.height = 100
+        this.width = 100
 
     }
     draw() {
-        c.fillRect(this.position.x, this.position.y, this.width, this.height)
+        c.drawImage(plataform_sprite, 32 * (this.sx - 1), 32 * (this.sy - 1), 32, 32, this.position.x, this.position.y, this.height,this.width)
+    }
+}
+
+
+let grounds = []
+class Ground{
+    constructor(positionX,positionY,sx,sy){
+        this.position={
+            x:positionX,
+            y:positionY
+        }
+        this.sx = sx
+        this.sy = sy
+        this.height = 100
+        this.width = 100
+    }
+    draw(){
+        c.drawImage(ground_sprite,32*(this.sx-1),32*(this.sy-1),32,32,this.position.x,this.position.y,this.height,this.width)
     }
 }
 
@@ -173,7 +190,7 @@ class Coin {
 
 
 let chargeJump = () => {
-    if (jump <= 38) jump += 10
+    if (jump <= 30) jump += 8
 }
 
 
@@ -181,36 +198,36 @@ let chargeJump = () => {
 document.addEventListener('keydown', e => {
     if (e.key == "a" && !keys.down.pressed) {
         keys.left.pressed = true
+        looking = 'left'
     }
     if (e.key == "d" && !keys.down.pressed) {
         keys.right.pressed = true
+        looking = 'right'
     }
     if (e.key == "s") {
         player.velocity.x = 0
         keys.down.pressed = true
         setTimeout(chargeJump, 50)
     }
+    if (e.key == "w") {
+        console.log(player.velocity)
+    }
 })
 
 document.addEventListener('keyup', e => {
     if (e.key == "a") {
         keys.left.pressed = false
-        looking = 'left'
+
     }
     if (e.key == "d") {
         keys.right.pressed = false
-        looking = 'right'
+
     }
     if (e.key == "s") {
         player.velocity.y -= jump
         jump = 0
         clearTimeout(chargeJump)
         keys.down.pressed = false
-
-        coins.forEach(e => {
-            console.log(player.velocity)
-
-        })
     }
 
 })
@@ -218,6 +235,24 @@ document.addEventListener('keyup', e => {
 
 function coliderPlataforma() {
     plataforms.forEach(e => {
+        e.draw()
+        //colisor parte de cima
+        if ((player.position.y + player.height <= e.position.y) && (player.position.y + player.height + player.velocity.y >= e.position.y) && (player.position.x + player.width >= e.position.x) && (player.position.x <= e.position.x + e.width)) {
+            player.velocity.y = 0
+        }
+        //colisor lado
+        // if (player.position.x + player.width >= e.position.x && player.position.x < e.position.x + e.width && player.position.y >= e.position.y && player.position.y <= e.position.y + e.height) {
+        //     player.velocity.x = 0
+        // }
+        // //colisor baixo
+        // if (player.position.y >= e.position.y + e.height + 30 && player.position.y + player.velocity.y <= e.position.y + e.height && player.position.x + player.width >= e.position.x && player.position.x < e.position.x + e.width) {
+        //     player.velocity.y = 0
+        // }
+    })
+}
+
+function coliderGround() {
+    grounds.forEach(e => {
         e.draw()
         //colisor parte de cima
         if ((player.position.y + player.height <= e.position.y) && (player.position.y + player.height + player.velocity.y >= e.position.y) && (player.position.x + player.width >= e.position.x) && (player.position.x <= e.position.x + e.width)) {
@@ -253,6 +288,7 @@ function animate() {
     player.update()
     coliderPlataforma()
     coliderCoin()
+    coliderGround()
     player.position.y += player.velocity.y
     player.position.x += player.velocity.x
     requestAnimationFrame(animate)
@@ -260,17 +296,20 @@ function animate() {
 
 const player = new Player()
 
-plataforms.push(new Plataform(400, 600))
-plataforms.push(new Plataform(100, 300))
+plataforms.push(new Plataform(400, 600, 1, 1))
+plataforms.push(new Plataform(500, 600, 2, 1))
+plataforms.push(new Plataform(600, 600, 2, 1))
+plataforms.push(new Plataform(700, 600, 2, 1))
+plataforms.push(new Plataform(800, 600, 3, 1))
 coins.push(new Coin(400, 400))
 coins.push(new Coin(600, 400))
 coins.push(new Coin(700, 500))
 
-plataforms.push(new Plataform(400, 600))
-plataforms.push(new Plataform(100, 300))
-coins.push(new Coin(400, 400))
-coins.push(new Coin(600, 400))
-coins.push(new Coin(700, 500))
+
+for(let i=0;i<=canvas.width/100;i++){
+    grounds.push(new Ground(i*100,canvas.height-100,3,4))
+}
+
 
 gatinho_sprite.onload = animate()
 
