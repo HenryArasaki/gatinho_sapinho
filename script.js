@@ -77,7 +77,7 @@ let looking = 'right'
 class Player {
     constructor() {
         this.position = {
-            x: 100,
+            x: 300,
             y: 100
         }
         this.velocity = {
@@ -91,25 +91,22 @@ class Player {
         c.drawImage(gatinho_sprite, gatinho_sprite_positionX + (gatinho_sprite_width * gatinho_sprite_currentFrame), gatinho_sprite_positionY, gatinho_sprite_width, gatinho_sprite_height, this.position.x, this.position.y, 100, 100)
     }
     update() {
-        if (this.position.y <= canvas.height - this.height - this.velocity.y) {
-            this.velocity.y += gravity
-        }
-        else this.velocity.y = 0
-
+        this.velocity.y += gravity
         if (keys.left.pressed) {
             this.velocity.x = -7
         }
-        if (this.velocity.x == -7 && this.position.x <= 200) {
+        if (this.velocity.x == -7 && this.position.x <=-200) {
             this.velocity.x = 0
             moveRight()
         }
 
         if (keys.right.pressed) this.velocity.x = 7
-        if (this.velocity.x == 7 && this.position.x >= 700) {
+        if (this.velocity.x == 7 && this.position.x >= 1200) {
             this.velocity.x = 0
             moveLeft()
         }
-        if ((!keys.left.pressed && !keys.right.pressed) || keys.down.pressed) this.velocity.x = 0
+        // if ((!keys.left.pressed && !keys.right.pressed) || keys.down.pressed) this.velocity.x = 0
+        if (keys.left.pressed && keys.right.pressed) this.velocity.x = 0
 
         this.draw()
         this.animation()
@@ -161,8 +158,8 @@ class Plataform {
         }
         this.sx = sx
         this.sy = sy
-        this.height = 100
         this.width = 100
+        this.height = 100
 
     }
     draw() {
@@ -180,8 +177,8 @@ class Ground {
         }
         this.sx = sx
         this.sy = sy
-        this.height = 100
         this.width = 100
+        this.height = 100
     }
     draw() {
         c.drawImage(ground_sprite, 32 * (this.sx - 1), 32 * (this.sy - 1), 32, 32, this.position.x, this.position.y, this.height, this.width)
@@ -250,7 +247,8 @@ class Enemy {
 
 
 let chargeJump = () => {
-    if (jump <= 30) jump += 8
+    // if (jump <= 30) jump += 8
+    jump = 30
 }
 
 
@@ -278,24 +276,26 @@ document.addEventListener('keydown', e => {
         player.velocity.x = 0
         keys.down.pressed = true
         setTimeout(chargeJump, 50)
+        if (player.velocity.y == 0) player.velocity.y -= jump
+
     }
     if (e.key == "w") {
-        console.log(player.velocity)
+        console.log(player.position.x)
     }
 })
 
 document.addEventListener('keyup', e => {
     if (e.key == "a") {
         keys.left.pressed = false
-
+        if (player.velocity.x == -7) player.velocity.x = 0
     }
     if (e.key == "d") {
         keys.right.pressed = false
-
+        if (player.velocity.x == 7) player.velocity.x = 0
     }
     if (e.key == "s") {
-        player.velocity.y -= jump
-        jump = 0
+        if (player.velocity.y == 0) player.velocity.y -= jump
+
         clearTimeout(chargeJump)
         keys.down.pressed = false
     }
@@ -306,36 +306,55 @@ document.addEventListener('keyup', e => {
 function colliderPlataforma() {
     plataforms.forEach(e => {
         e.draw()
-        //colisor parte de cima
-        if ((player.position.y + player.height <= e.position.y) && (player.position.y + player.height + player.velocity.y >= e.position.y) && (player.position.x + player.width >= e.position.x) && (player.position.x <= e.position.x + e.width)) {
+
+        //parte de cima
+        if (player.position.x + player.width> e.position.x && player.position.x <e.position.x + e.width && player.position.y+player.height + player.velocity.y>e.position.y && player.position.y < e.position.y + e.height){
+
             player.velocity.y = 0
+
         }
-        //colisor lado
-        // if (player.position.x + player.width >= e.position.x && player.position.x < e.position.x + e.width && player.position.y >= e.position.y && player.position.y <= e.position.y + e.height) {
-        //     player.velocity.x = 0
-        // }
-        // //colisor baixo
-        // if (player.position.y >= e.position.y + e.height + 30 && player.position.y + player.velocity.y <= e.position.y + e.height && player.position.x + player.width >= e.position.x && player.position.x < e.position.x + e.width) {
-        //     player.velocity.y = 0
-        // }
+        //parte de baixo
+        if (player.position.x + player.width> e.position.x && player.position.x <e.position.x + e.width && player.position.y+player.height + player.velocity.y>e.position.y + e.height&& player.position.y < e.position.y + e.height){
+
+            player.velocity.y += 5
+        }
+        
+        if(player.position.x + player.velocity.x <e.position.x + e.width && player.position.x <e.position.x + e.width && player.position.y+player.height>e.position.y && player.position.y < e.position.y + e.height){
+            player.velocity.x =0
+        }
+        if(player.position.x <e.position.x + e.width && player.position.x + player.width + player.velocity.x <e.position.x && player.position.y+player.height>e.position.y && player.position.y < e.position.y + e.height){
+            player.velocity.x =0
+        }
+        
     })
 }
 
 function colliderGround() {
     grounds.forEach(e => {
         e.draw()
-        //colisor parte de cima
-        if ((player.position.y + player.height <= e.position.y) && (player.position.y + player.height + player.velocity.y >= e.position.y) && (player.position.x + player.width >= e.position.x) && (player.position.x <= e.position.x + e.width)) {
+        //parte de cima
+        if (player.position.x + player.width> e.position.x && player.position.x <e.position.x + e.width && player.position.y+player.height + player.velocity.y>e.position.y && player.position.y < e.position.y + e.height){
+
             player.velocity.y = 0
+       
+
         }
-        //colisor lado
-        // if (player.position.x + player.width >= e.position.x && player.position.x < e.position.x + e.width && player.position.y >= e.position.y && player.position.y <= e.position.y + e.height) {
-        //     player.velocity.x = 0
-        // }
-        // //colisor baixo
-        // if (player.position.y >= e.position.y + e.height + 30 && player.position.y + player.velocity.y <= e.position.y + e.height && player.position.x + player.width >= e.position.x && player.position.x < e.position.x + e.width) {
-        //     player.velocity.y = 0
-        // }
+        //parte de baixo
+        if (player.position.x + player.width> e.position.x && player.position.x <e.position.x + e.width && player.position.y+player.height + player.velocity.y>e.position.y + e.height&& player.position.y < e.position.y + e.height){
+
+            player.velocity.y += 5
+       
+        }
+        
+        if(player.position.x + player.velocity.x <e.position.x + e.width && player.position.x +player.width>e.position.x&& player.position.y+player.height>e.position.y && player.position.y < e.position.y + e.height){
+            player.velocity.x =0
+            console.log('1')
+
+        }
+        if(player.position.x <e.position.x + e.width && player.position.x + player.width + player.velocity.x >e.position.x && player.position.y+player.height>e.position.y && player.position.y < e.position.y + e.height){
+            player.velocity.x =0
+            console.log('2adfd')
+        }
     })
 }
 
@@ -369,7 +388,7 @@ function moveLeft() {
     )
     enemies.forEach(e => {
         e.position.x -= 7
-        e.initialPosition.x -=7
+        e.initialPosition.x -= 7
     })
     frogs.forEach(e =>
         e.position.x -= 7)
@@ -384,7 +403,7 @@ function moveRight() {
     )
     enemies.forEach(e => {
         e.position.x += 7
-        e.initialPosition.x +=7
+        e.initialPosition.x += 7
     })
     frogs.forEach(e =>
         e.position.x += 7)
@@ -403,9 +422,9 @@ function animate() {
     // c.fillStyle = c.createPattern(bg_sprite,"repeat")
     // c.fill()
     player.update()
+    colliderGround()
     colliderPlataforma()
     colliderFrog()
-    colliderGround()
     colliderEnemy()
     player.position.y += player.velocity.y
     player.position.x += player.velocity.x
@@ -414,11 +433,11 @@ function animate() {
 
 const player = new Player()
 
-plataforms.push(new Plataform(400, 600, 1, 1))
-plataforms.push(new Plataform(500, 600, 2, 1))
-plataforms.push(new Plataform(600, 600, 2, 1))
-plataforms.push(new Plataform(700, 600, 2, 1))
-plataforms.push(new Plataform(800, 600, 3, 1))
+plataforms.push(new Plataform(400, 500, 1, 1))
+plataforms.push(new Plataform(500, 500, 2, 1))
+plataforms.push(new Plataform(600, 500, 2, 1))
+plataforms.push(new Plataform(700, 500, 2, 1))
+plataforms.push(new Plataform(800, 500, 3, 1))
 frogs.push(new Frog(400, 400))
 frogs.push(new Frog(600, 400))
 frogs.push(new Frog(700, 500))
@@ -429,6 +448,20 @@ enemies.push(new Enemy(700, 700, 500, 6))
 for (let i = 0; i <= canvas.width * 3 / 100; i++) {
     grounds.push(new Ground(i * 100, canvas.height - 100, 3, 4))
 }
+for (let i = 0; i <= canvas.height - 200; i += 100) {
+    grounds.push(new Ground(0, i, 3, 2))
+}
+for (let i = 0; i <= canvas.height - 200; i += 100) {
+    grounds.push(new Ground(900, i, 3, 2))
+}
+for (let i = 0; i <= canvas.height - 100; i += 100) {
+    grounds.push(new Ground(-100, i, 1, 1))
+}
+grounds.push(new Ground(0,canvas.height-100,1,1))
+for (let i = 0; i <= canvas.height - 100; i += 100) {
+    grounds.push(new Ground(-200, i, 1, 1))
+}
+grounds.push(new Ground(0,canvas.height-100,1,1))
 
 
 gatinho_sprite.onload = animate()
