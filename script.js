@@ -45,6 +45,7 @@ ground_sprite.src = './assets/sprite_ground.png'
 
 const bg_sprite = new Image()
 bg_sprite.src = './assets/sprite_bg.png'
+var pat = c.createPattern(bg_sprite, "repeat-x")
 
 
 let tipoFPS = 0
@@ -95,8 +96,19 @@ class Player {
         }
         else this.velocity.y = 0
 
-        if (keys.left.pressed) this.velocity.x = -7
+        if (keys.left.pressed) {
+            this.velocity.x = -7
+        }
+        if (this.velocity.x == -7 && this.position.x <= 200) {
+            this.velocity.x = 0
+            moveRight()
+        }
+
         if (keys.right.pressed) this.velocity.x = 7
+        if (this.velocity.x == 7 && this.position.x >= 700) {
+            this.velocity.x = 0
+            moveLeft()
+        }
         if ((!keys.left.pressed && !keys.right.pressed) || keys.down.pressed) this.velocity.x = 0
 
         this.draw()
@@ -350,9 +362,46 @@ function colliderEnemy() {
 }
 
 
+function moveLeft() {
+    bgD -= 3
+    plataforms.forEach(e =>
+        e.position.x -= 7
+    )
+    enemies.forEach(e => {
+        e.position.x -= 7
+        e.initialPosition.x -=7
+    })
+    frogs.forEach(e =>
+        e.position.x -= 7)
+    grounds.forEach(e =>
+        e.position.x -= 7)
+
+}
+function moveRight() {
+    bgD += 3
+    plataforms.forEach(e =>
+        e.position.x += 7
+    )
+    enemies.forEach(e => {
+        e.position.x += 7
+        e.initialPosition.x +=7
+    })
+    frogs.forEach(e =>
+        e.position.x += 7)
+    grounds.forEach(e =>
+        e.position.x += 7)
+
+}
+
+let bgD = 0
 function animate() {
     c.clearRect(0, 0, canvas.width, canvas.height)
-    c.drawImage(bg_sprite, 0, 0, canvas.width, canvas.height)
+    for (let i = -1; i < 5; i++) {
+        c.drawImage(bg_sprite, 0 + i * canvas.width + bgD, 0, canvas.width, canvas.height)
+    }
+    // c.rect(0, 0, canvas.width, canvas.height)
+    // c.fillStyle = c.createPattern(bg_sprite,"repeat")
+    // c.fill()
     player.update()
     colliderPlataforma()
     colliderFrog()
@@ -377,7 +426,7 @@ enemies.push(new Enemy(700, 700, 500, 6))
 
 
 
-for (let i = 0; i <= canvas.width / 100; i++) {
+for (let i = 0; i <= canvas.width * 3 / 100; i++) {
     grounds.push(new Ground(i * 100, canvas.height - 100, 3, 4))
 }
 
