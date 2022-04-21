@@ -38,6 +38,10 @@ const ground_sprite = new Image()
 ground_sprite.src = './assets/sprite_ground.png'
 
 
+const bg_sprite = new Image()
+bg_sprite.src = './assets/sprite_bg.png'
+
+
 let tipoFPS = 0
 
 canvas.height = 900
@@ -194,6 +198,16 @@ let chargeJump = () => {
 }
 
 
+class Bg{
+    constructor(){
+        this.width = canvas.width
+        this.height = canvas.height
+    }
+    draw(){
+        c.drawImage(bg_sprite ,this.width,this.height)
+    }
+}
+
 
 document.addEventListener('keydown', e => {
     if (e.key == "a" && !keys.down.pressed) {
@@ -285,6 +299,7 @@ function coliderCoin() {
 
 function animate() {
     c.clearRect(0, 0, canvas.width, canvas.height)
+    c.drawImage(bg_sprite ,0,0,canvas.width,canvas.height)
     player.update()
     coliderPlataforma()
     coliderCoin()
