@@ -15,19 +15,24 @@ let gatinho_sprite_currentFrame = 0
 let gatinho_sprite_positionX = 0
 let gatinho_sprite_positionY = 0
 
-const coin_sprite = new Image()
-coin_sprite.src = './assets/sprite_coin.png'
+const frog_sprite = new Image()
+frog_sprite.src = './assets/sprite_frog.png'
 
-let coin_sprite_cols = 6
-let coin_sprite_rows = 1
-let coin_sprite_height = coin_sprite.height / coin_sprite_rows
-let coin_sprite_width = coin_sprite.width / coin_sprite_cols
-let coin_sprite_totalFrames = 6
-let coin_sprite_currentFrame = 0
-let coin_sprite_positionX = 0
-let coin_sprite_positionY = 0
+let frog_sprite_cols = 7
+let frog_sprite_rows = 1
+let frog_sprite_height = frog_sprite.height / frog_sprite_rows
+let frog_sprite_width = frog_sprite.width / frog_sprite_cols
+let frog_sprite_totalFrames = 7
+let frog_sprite_currentFrame = 0
+let frog_sprite_positionX = 0
+let frog_sprite_positionY = 0
 
-let coins = []
+let frogs = []
+
+
+const enemy_sprite = new Image()
+// enemy_sprite.src = ''
+
 
 
 const plataform_sprite = new Image()
@@ -149,30 +154,30 @@ class Plataform {
 
     }
     draw() {
-        c.drawImage(plataform_sprite, 32 * (this.sx - 1), 32 * (this.sy - 1), 32, 32, this.position.x, this.position.y, this.height,this.width)
+        c.drawImage(plataform_sprite, 32 * (this.sx - 1), 32 * (this.sy - 1), 32, 32, this.position.x, this.position.y, this.height, this.width)
     }
 }
 
 
 let grounds = []
-class Ground{
-    constructor(positionX,positionY,sx,sy){
-        this.position={
-            x:positionX,
-            y:positionY
+class Ground {
+    constructor(positionX, positionY, sx, sy) {
+        this.position = {
+            x: positionX,
+            y: positionY
         }
         this.sx = sx
         this.sy = sy
         this.height = 100
         this.width = 100
     }
-    draw(){
-        c.drawImage(ground_sprite,32*(this.sx-1),32*(this.sy-1),32,32,this.position.x,this.position.y,this.height,this.width)
+    draw() {
+        c.drawImage(ground_sprite, 32 * (this.sx - 1), 32 * (this.sy - 1), 32, 32, this.position.x, this.position.y, this.height, this.width)
     }
 }
 
 
-class Coin {
+class Frog {
     constructor(positionX, positionY) {
         this.position = {
             x: positionX,
@@ -182,13 +187,52 @@ class Coin {
         this.height = 100
     }
     draw() {
-        c.drawImage(coin_sprite, coin_sprite_positionX + (coin_sprite_width * coin_sprite_currentFrame), coin_sprite_positionY, coin_sprite_width, coin_sprite_height, this.position.x, this.position.y, 100, 100)
+        c.drawImage(frog_sprite, frog_sprite_positionX + (frog_sprite_width * frog_sprite_currentFrame), frog_sprite_positionY, frog_sprite_width, frog_sprite_height, this.position.x, this.position.y, 100, 100)
     }
     animation() {
         if (tipoFPS == 10) {
-            coin_sprite_currentFrame += 1
-            coin_sprite_currentFrame = coin_sprite_currentFrame % coin_sprite_totalFrames
+            frog_sprite_currentFrame += 1
+            frog_sprite_currentFrame = frog_sprite_currentFrame % frog_sprite_totalFrames
         }
+    }
+}
+
+
+let enemies = []
+class Enemy {
+    constructor(positionX, positionY, walkDistance, walkSpeed) {
+        this.position = {
+            x: positionX,
+            y: positionY
+        }
+        this.initialPosition = {
+            x: positionX,
+            y: positionY
+        }
+        this.walkDistance = walkDistance
+        this.walkSpeed = walkSpeed
+        this.width = 100
+        this.height = 100
+        this.looking = 'right'
+
+    }
+    draw() {
+        c.fillRect(this.position.x, this.position.y, this.width, this.height)
+    }
+    update() {
+        if (this.looking == 'right') {
+            if (this.position.x < this.initialPosition.x + this.walkDistance) {
+                this.position.x += this.walkSpeed
+            }
+            else this.looking = 'left'
+        }
+        else {
+            if (this.position.x > this.initialPosition.x) {
+                this.position.x -= this.walkSpeed
+            }
+            else this.looking = 'right'
+        }
+
     }
 }
 
@@ -198,13 +242,13 @@ let chargeJump = () => {
 }
 
 
-class Bg{
-    constructor(){
+class Bg {
+    constructor() {
         this.width = canvas.width
         this.height = canvas.height
     }
-    draw(){
-        c.drawImage(bg_sprite ,this.width,this.height)
+    draw() {
+        c.drawImage(bg_sprite, this.width, this.height)
     }
 }
 
@@ -247,7 +291,7 @@ document.addEventListener('keyup', e => {
 })
 
 
-function coliderPlataforma() {
+function colliderPlataforma() {
     plataforms.forEach(e => {
         e.draw()
         //colisor parte de cima
@@ -265,7 +309,7 @@ function coliderPlataforma() {
     })
 }
 
-function coliderGround() {
+function colliderGround() {
     grounds.forEach(e => {
         e.draw()
         //colisor parte de cima
@@ -283,27 +327,37 @@ function coliderGround() {
     })
 }
 
-function coliderCoin() {
-    if (coins.length > 0) {
-        coins[0].animation()
+function colliderFrog() {
+    if (frogs.length > 0) {
+        frogs[0].animation()
     }
-    for (let i = 0; i < coins.length; i++) {
+    for (let i = 0; i < frogs.length; i++) {
 
-        coins[i].draw()
-        if (player.position.y + player.height >= coins[i].position.y && player.position.y <= coins[i].position.y + coins[i].height && player.position.x + player.width >= coins[i].position.x && player.position.x <= coins[i].position.x + coins[i].width) {
-            coins.splice(i, 1)
+        frogs[i].draw()
+        if (player.position.y + player.height >= frogs[i].position.y && player.position.y <= frogs[i].position.y + frogs[i].height && player.position.x + player.width >= frogs[i].position.x && player.position.x <= frogs[i].position.x + frogs[i].width) {
+            frogs.splice(i, 1)
         }
     }
 }
 
 
+function colliderEnemy() {
+    enemies.forEach(e => {
+        e.update()
+        e.draw()
+    }
+    )
+}
+
+
 function animate() {
     c.clearRect(0, 0, canvas.width, canvas.height)
-    c.drawImage(bg_sprite ,0,0,canvas.width,canvas.height)
+    c.drawImage(bg_sprite, 0, 0, canvas.width, canvas.height)
     player.update()
-    coliderPlataforma()
-    coliderCoin()
-    coliderGround()
+    colliderPlataforma()
+    colliderFrog()
+    colliderGround()
+    colliderEnemy()
     player.position.y += player.velocity.y
     player.position.x += player.velocity.x
     requestAnimationFrame(animate)
@@ -316,13 +370,15 @@ plataforms.push(new Plataform(500, 600, 2, 1))
 plataforms.push(new Plataform(600, 600, 2, 1))
 plataforms.push(new Plataform(700, 600, 2, 1))
 plataforms.push(new Plataform(800, 600, 3, 1))
-coins.push(new Coin(400, 400))
-coins.push(new Coin(600, 400))
-coins.push(new Coin(700, 500))
+frogs.push(new Frog(400, 400))
+frogs.push(new Frog(600, 400))
+frogs.push(new Frog(700, 500))
+enemies.push(new Enemy(700, 700, 500, 6))
 
 
-for(let i=0;i<=canvas.width/100;i++){
-    grounds.push(new Ground(i*100,canvas.height-100,3,4))
+
+for (let i = 0; i <= canvas.width / 100; i++) {
+    grounds.push(new Ground(i * 100, canvas.height - 100, 3, 4))
 }
 
 
