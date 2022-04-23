@@ -70,7 +70,34 @@ const keys = {
     }
 }
 
+const collider = {
+    left: false,
+    right: false,
+    top: false,
+    bottom: false
+}
+
 let looking = 'right'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -92,18 +119,18 @@ class Player {
     }
     update() {
         this.velocity.y += gravity
+        if (keys.right.pressed) this.velocity.x = 7
         if (keys.left.pressed) {
             this.velocity.x = -7
         }
-        if (this.velocity.x == -7 && this.position.x <=-200) {
-            this.velocity.x = 0
-            moveRight()
+        if (this.velocity.x == -7 && this.position.x <= 100) {
+
+            moveLeft()
         }
 
-        if (keys.right.pressed) this.velocity.x = 7
-        if (this.velocity.x == 7 && this.position.x >= 1200) {
-            this.velocity.x = 0
-            moveLeft()
+        if (this.velocity.x == 7 && this.position.x >= 800) {
+
+            moveRight()
         }
         // if ((!keys.left.pressed && !keys.right.pressed) || keys.down.pressed) this.velocity.x = 0
         if (keys.left.pressed && keys.right.pressed) this.velocity.x = 0
@@ -263,6 +290,41 @@ class Bg {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 document.addEventListener('keydown', e => {
     if (e.key == "a" && !keys.down.pressed) {
         keys.left.pressed = true
@@ -271,6 +333,7 @@ document.addEventListener('keydown', e => {
     if (e.key == "d" && !keys.down.pressed) {
         keys.right.pressed = true
         looking = 'right'
+
     }
     if (e.key == "s") {
         player.velocity.x = 0
@@ -280,7 +343,7 @@ document.addEventListener('keydown', e => {
 
     }
     if (e.key == "w") {
-        console.log(player.position.x)
+        console.log(collider)
     }
 })
 
@@ -303,29 +366,56 @@ document.addEventListener('keyup', e => {
 })
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function colliderPlataforma() {
     plataforms.forEach(e => {
         e.draw()
 
         //parte de cima
-        if (player.position.x + player.width> e.position.x && player.position.x <e.position.x + e.width && player.position.y+player.height + player.velocity.y>e.position.y && player.position.y < e.position.y + e.height){
+        if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y && player.position.y < e.position.y + e.height) {
 
             player.velocity.y = 0
 
         }
         //parte de baixo
-        if (player.position.x + player.width> e.position.x && player.position.x <e.position.x + e.width && player.position.y+player.height + player.velocity.y>e.position.y + e.height&& player.position.y < e.position.y + e.height){
+        if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y + e.height && player.position.y < e.position.y + e.height) {
 
             player.velocity.y += 5
         }
-        
-        if(player.position.x + player.velocity.x <e.position.x + e.width && player.position.x <e.position.x + e.width && player.position.y+player.height>e.position.y && player.position.y < e.position.y + e.height){
-            player.velocity.x =0
+
+        if (player.position.x + player.velocity.x < e.position.x + e.width && player.position.x < e.position.x + e.width && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
+            player.velocity.x = 0
         }
-        if(player.position.x <e.position.x + e.width && player.position.x + player.width + player.velocity.x <e.position.x && player.position.y+player.height>e.position.y && player.position.y < e.position.y + e.height){
-            player.velocity.x =0
+        if (player.position.x < e.position.x + e.width && player.position.x + player.width + player.velocity.x < e.position.x && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
+            player.velocity.x = 0
         }
-        
+
     })
 }
 
@@ -333,27 +423,39 @@ function colliderGround() {
     grounds.forEach(e => {
         e.draw()
         //parte de cima
-        if (player.position.x + player.width> e.position.x && player.position.x <e.position.x + e.width && player.position.y+player.height + player.velocity.y>e.position.y && player.position.y < e.position.y + e.height){
+        if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y && player.position.y < e.position.y + e.height) {
 
             player.velocity.y = 0
-       
+            collider.top = true
 
         }
+        else collider.top = false
         //parte de baixo
-        if (player.position.x + player.width> e.position.x && player.position.x <e.position.x + e.width && player.position.y+player.height + player.velocity.y>e.position.y + e.height&& player.position.y < e.position.y + e.height){
+        if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y + e.height && player.position.y < e.position.y + e.height) {
 
             player.velocity.y += 5
-       
-        }
-        
-        if(player.position.x + player.velocity.x <e.position.x + e.width && player.position.x +player.width>e.position.x&& player.position.y+player.height>e.position.y && player.position.y < e.position.y + e.height){
-            player.velocity.x =0
-            console.log('1')
+            collider.bottom = true
 
         }
-        if(player.position.x <e.position.x + e.width && player.position.x + player.width + player.velocity.x >e.position.x && player.position.y+player.height>e.position.y && player.position.y < e.position.y + e.height){
-            player.velocity.x =0
-            console.log('2adfd')
+        else collider.bottom = false
+        //lado esquerdo
+        if (player.position.x + player.velocity.x < e.position.x + e.width && player.position.x + player.width > e.position.x && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
+            player.velocity.x = 0
+            collider.left = true
+            console.log('left')
+        }
+        else collider.left = false
+        //lado direito
+        if (player.position.x < e.position.x + e.width && player.position.x + player.width + player.velocity.x > e.position.x && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
+            player.velocity.x = 0
+            collider.right = true
+            console.log('righht')
+
+        }
+        else collider.right = false
+        if(collider.right && collider.left){
+
+            console.log('ambos')
         }
     })
 }
@@ -381,36 +483,148 @@ function colliderEnemy() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let canMoveLeft = 0
 function moveLeft() {
-    bgD -= 3
-    plataforms.forEach(e =>
-        e.position.x -= 7
-    )
-    enemies.forEach(e => {
-        e.position.x -= 7
-        e.initialPosition.x -= 7
-    })
-    frogs.forEach(e =>
-        e.position.x -= 7)
-    grounds.forEach(e =>
-        e.position.x -= 7)
+    grounds.forEach(element => {
 
+        if (player.position.x + player.velocity.x < element.position.x + element.width && player.position.x + player.width > element.position.x && player.position.y + player.height > element.position.y && player.position.y < element.position.y + element.height) {
+            canMoveLeft += 1
+        }
+
+    }
+    )
+    if (canMoveLeft == 0) {
+        player.velocity.x = 0
+        bgD += 3
+        plataforms.forEach(e =>
+            e.position.x += 7
+        )
+        enemies.forEach(e => {
+            e.position.x += 7
+            e.initialPosition.x += 7
+        })
+        frogs.forEach(e =>
+            e.position.x += 7)
+        grounds.forEach(e =>
+            e.position.x += 7)
+
+    }
+    else canMoveLeft = 0
 }
+
+
+let canMoveRight = 0
 function moveRight() {
-    bgD += 3
-    plataforms.forEach(e =>
-        e.position.x += 7
-    )
-    enemies.forEach(e => {
-        e.position.x += 7
-        e.initialPosition.x += 7
-    })
-    frogs.forEach(e =>
-        e.position.x += 7)
-    grounds.forEach(e =>
-        e.position.x += 7)
+    grounds.forEach(element => {
 
+        if (player.position.x < element.position.x + element.width && player.position.x + player.width + player.velocity.x > element.position.x && player.position.y + player.height > element.position.y && player.position.y < element.position.y + element.height) {
+            canMoveRight += 1
+        }
+
+    }
+    )
+    if (canMoveRight == 0) {
+        player.velocity.x = 0
+        bgD -= 3
+        plataforms.forEach(e =>
+            e.position.x -= 7
+        )
+        enemies.forEach(e => {
+            e.position.x -= 7
+            e.initialPosition.x -= 7
+        })
+        frogs.forEach(e =>
+            e.position.x -= 7)
+        grounds.forEach(e =>
+            e.position.x -= 7)
+
+    }
+    else canMoveRight = 0
 }
+
+
+// function moveLeft() {
+
+//     bgD -= 3
+//     plataforms.forEach(e =>
+//         e.position.x -= 7
+//     )
+//     enemies.forEach(e => {
+//         e.position.x -= 7
+//         e.initialPosition.x -= 7
+//     })
+//     frogs.forEach(e =>
+//         e.position.x -= 7)
+//     grounds.forEach(e =>
+//         e.position.x -= 7)
+
+
+// }
+
+
+
+// function moveRight() {
+
+//     bgD += 3
+//     plataforms.forEach(e =>
+//         e.position.x += 7
+//     )
+//     enemies.forEach(e => {
+//         e.position.x += 7
+//         e.initialPosition.x += 7
+//     })
+//     frogs.forEach(e =>
+//         e.position.x += 7)
+//     grounds.forEach(e =>
+//         e.position.x += 7)
+
+
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 let bgD = 0
 function animate() {
@@ -428,8 +642,26 @@ function animate() {
     colliderEnemy()
     player.position.y += player.velocity.y
     player.position.x += player.velocity.x
+   
     requestAnimationFrame(animate)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const player = new Player()
 
@@ -452,16 +684,16 @@ for (let i = 0; i <= canvas.height - 200; i += 100) {
     grounds.push(new Ground(0, i, 3, 2))
 }
 for (let i = 0; i <= canvas.height - 200; i += 100) {
-    grounds.push(new Ground(900, i, 3, 2))
+    grounds.push(new Ground(1200, i, 3, 2))
 }
 for (let i = 0; i <= canvas.height - 100; i += 100) {
     grounds.push(new Ground(-100, i, 1, 1))
 }
-grounds.push(new Ground(0,canvas.height-100,1,1))
+grounds.push(new Ground(0, canvas.height - 100, 1, 1))
 for (let i = 0; i <= canvas.height - 100; i += 100) {
     grounds.push(new Ground(-200, i, 1, 1))
 }
-grounds.push(new Ground(0,canvas.height-100,1,1))
+grounds.push(new Ground(0, canvas.height - 100, 1, 1))
 
 
 gatinho_sprite.onload = animate()
