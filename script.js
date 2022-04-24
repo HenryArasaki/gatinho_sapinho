@@ -31,7 +31,16 @@ let frogs = []
 
 
 const enemy_sprite = new Image()
-// enemy_sprite.src = ''
+enemy_sprite.src = './assets/sprite_enemy.png'
+
+let enemy_sprite_cols = 12
+let enemy_sprite_rows = 1
+let enemy_sprite_height = enemy_sprite.height / enemy_sprite_rows
+let enemy_sprite_width = enemy_sprite.width / enemy_sprite_cols
+let enemy_sprite_totalFrames = 12
+let enemy_sprite_currentFrame = 0
+let enemy_sprite_positionX = 0
+let enemy_sprite_positionY = 0
 
 
 
@@ -46,6 +55,9 @@ ground_sprite.src = './assets/sprite_ground.png'
 const bg_sprite = new Image()
 bg_sprite.src = './assets/sprite_bg.png'
 var pat = c.createPattern(bg_sprite, "repeat-x")
+
+
+
 
 
 let tipoFPS = 0
@@ -104,8 +116,8 @@ let looking = 'right'
 class Player {
     constructor() {
         this.position = {
-            x: 300,
-            y: 100
+            x: 200,
+            y: 600
         }
         this.velocity = {
             x: 0,
@@ -253,7 +265,7 @@ class Enemy {
 
     }
     draw() {
-        c.fillRect(this.position.x, this.position.y, this.width, this.height)
+        c.drawImage(enemy_sprite, enemy_sprite_positionX + (enemy_sprite_width * enemy_sprite_currentFrame), enemy_sprite_positionY, enemy_sprite_width, enemy_sprite_height, this.position.x, this.position.y, 100, 100)
     }
     update() {
         if (this.looking == 'right') {
@@ -268,7 +280,17 @@ class Enemy {
             }
             else this.looking = 'right'
         }
+        
+        this.animation()
+        this.draw()
 
+    }
+    animation(){
+        if (tipoFPS == 3 || tipoFPS == 6 || tipoFPS == 10) {
+            enemy_sprite_currentFrame += 1
+            enemy_sprite_currentFrame = enemy_sprite_currentFrame % enemy_sprite_totalFrames
+            
+        }
     }
 }
 
@@ -409,12 +431,6 @@ function colliderPlataforma() {
             player.velocity.y += 5
         }
 
-        if (player.position.x + player.velocity.x < e.position.x + e.width && player.position.x < e.position.x + e.width && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
-            player.velocity.x = 0
-        }
-        if (player.position.x < e.position.x + e.width && player.position.x + player.width + player.velocity.x < e.position.x && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
-            player.velocity.x = 0
-        }
 
     })
 }
@@ -453,7 +469,7 @@ function colliderGround() {
 
         }
         else collider.right = false
-        if(collider.right && collider.left){
+        if (collider.right && collider.left) {
 
             console.log('ambos')
         }
@@ -477,7 +493,7 @@ function colliderFrog() {
 function colliderEnemy() {
     enemies.forEach(e => {
         e.update()
-        e.draw()
+        
     }
     )
 }
@@ -642,7 +658,7 @@ function animate() {
     colliderEnemy()
     player.position.y += player.velocity.y
     player.position.x += player.velocity.x
-   
+
     requestAnimationFrame(animate)
 }
 
@@ -664,6 +680,8 @@ function animate() {
 
 
 const player = new Player()
+
+// for( let i=0 ;i<14;i++) grounds.push(new Ground(100+i*100,700 , 3, 4))
 
 plataforms.push(new Plataform(400, 500, 1, 1))
 plataforms.push(new Plataform(500, 500, 2, 1))
