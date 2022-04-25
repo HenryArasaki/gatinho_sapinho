@@ -33,8 +33,9 @@ let frogs = []
 const enemy_sprite = new Image()
 enemy_sprite.src = './assets/sprite_enemy.png'
 
+
 let enemy_sprite_cols = 12
-let enemy_sprite_rows = 1
+let enemy_sprite_rows = 2
 let enemy_sprite_height = enemy_sprite.height / enemy_sprite_rows
 let enemy_sprite_width = enemy_sprite.width / enemy_sprite_cols
 let enemy_sprite_totalFrames = 12
@@ -286,10 +287,11 @@ class Enemy {
 
     }
     animation(){
+        if(this.looking=='right') enemy_sprite_positionY = 0
+        else enemy_sprite_positionY = enemy_sprite_height
         if (tipoFPS == 3 || tipoFPS == 6 || tipoFPS == 10) {
             enemy_sprite_currentFrame += 1
             enemy_sprite_currentFrame = enemy_sprite_currentFrame % enemy_sprite_totalFrames
-            
         }
     }
 }
@@ -458,21 +460,17 @@ function colliderGround() {
         if (player.position.x + player.velocity.x < e.position.x + e.width && player.position.x + player.width > e.position.x && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
             player.velocity.x = 0
             collider.left = true
-            console.log('left')
+            
         }
         else collider.left = false
         //lado direito
         if (player.position.x < e.position.x + e.width && player.position.x + player.width + player.velocity.x > e.position.x && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
             player.velocity.x = 0
             collider.right = true
-            console.log('righht')
+           
 
         }
         else collider.right = false
-        if (collider.right && collider.left) {
-
-            console.log('ambos')
-        }
     })
 }
 
