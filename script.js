@@ -58,6 +58,22 @@ bg_sprite.src = './assets/sprite_bg.png'
 var pat = c.createPattern(bg_sprite, "repeat-x")
 
 
+const morango_sprite = new Image()
+morango_sprite.src = './assets/sprite_morango.png'
+let morango_sprite_cols = 7
+let morango_sprite_rows = 1
+let morango_sprite_height = morango_sprite.height / morango_sprite_rows
+let morango_sprite_width = morango_sprite.width / morango_sprite_cols
+let morango_sprite_totalFrames = 7
+let morango_sprite_currentFrame = 0
+let morango_sprite_positionX = 0
+let morango_sprite_positionY = 0
+
+const morango_sprite1 = new Image()
+morango_sprite1.src = './assets/sprite_morango1.png'
+
+
+
 
 
 
@@ -118,7 +134,7 @@ class Player {
     constructor() {
         this.position = {
             x: 200,
-            y: 600
+            y: 550
         }
         this.velocity = {
             x: 0,
@@ -136,16 +152,24 @@ class Player {
         if (keys.left.pressed) {
             this.velocity.x = -7
         }
-        if (this.velocity.x == -7 && this.position.x <= 100) {
+        if (this.velocity.x == -7 && this.position.x <= 150) {
 
             moveLeft()
         }
 
-        if (this.velocity.x == 7 && this.position.x >= 800) {
+        if (this.velocity.x == 7 && this.position.x >= 650) {
 
             moveRight()
         }
-        // if ((!keys.left.pressed && !keys.right.pressed) || keys.down.pressed) this.velocity.x = 0
+        if (this.velocity.y <= 0 && this.position.y <= 550) {
+
+            moveUp()
+        }
+        if (this.velocity.y >= 0 && this.position.y <= 550) {
+
+            moveDown()
+        }
+        if ((!keys.left.pressed && !keys.right.pressed) || keys.down.pressed) this.velocity.x = 0
         if (keys.left.pressed && keys.right.pressed) this.velocity.x = 0
 
         this.draw()
@@ -179,15 +203,29 @@ class Player {
         tipoFPS += 1
     }
 }
+const player = new Player()
 
-class JumpBar {
-    constructor() {
+
+let jumpBar = {
+    position: {
+        x: player.position.x - 100,
+        y: player.position.y - 100
+    },
+    width: 100,
+    height: 50,
+    update: function () {
         this.position = {
-            x: 0,
-            y: 0
+            x: player.position.x - 50,
+            y: player.position.y - 50
         }
-        this.width
+        this.width = jump *2
+        c.fillStyle = '#140333'
+        c.fillRect(this.position.x, this.position.y, 200, this.height)
+        c.fillStyle = '#94cc47'
+        c.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
+
+
 }
 
 class Plataform {
@@ -281,13 +319,13 @@ class Enemy {
             }
             else this.looking = 'right'
         }
-        
+
         this.animation()
         this.draw()
 
     }
-    animation(){
-        if(this.looking=='right') enemy_sprite_positionY = 0
+    animation() {
+        if (this.looking == 'right') enemy_sprite_positionY = 0
         else enemy_sprite_positionY = enemy_sprite_height
         if (tipoFPS == 3 || tipoFPS == 6 || tipoFPS == 10) {
             enemy_sprite_currentFrame += 1
@@ -297,10 +335,6 @@ class Enemy {
 }
 
 
-let chargeJump = () => {
-    // if (jump <= 30) jump += 8
-    jump = 30
-}
 
 
 class Bg {
@@ -316,6 +350,41 @@ class Bg {
 
 
 
+let vida = {
+    initialValue: 3,
+    currentValue: 3,
+    update: function () {
+        if (this.currentValue > 3) this.currentValue = 3
+        for (let i = 0; i < this.currentValue; i++) {
+            c.drawImage(morango_sprite1, 0, 0, morango_sprite1.width, morango_sprite1.height, i * 75, 0, 75, 75)
+        }
+        if (this.currentValue <= 0) {
+            //programar a funcção de reinciar
+        }
+    }
+}
+
+
+let morangos = []
+class Morango {
+    constructor(positionX, positionY) {
+        this.width = 100
+        this.height = 100
+        this.position = {
+            x: positionX,
+            y: positionY
+        }
+    }
+    draw() {
+        c.drawImage(morango_sprite, morango_sprite_positionX + (morango_sprite_width * morango_sprite_currentFrame), morango_sprite_positionY, morango_sprite_width, morango_sprite_height, this.position.x, this.position.y, 100, 100)
+    }
+    animation() {
+        if (tipoFPS == 10) {
+            morango_sprite_currentFrame += 1
+            morango_sprite_currentFrame = morango_sprite_currentFrame % morango_sprite_totalFrames
+        }
+    }
+}
 
 
 
@@ -360,12 +429,13 @@ document.addEventListener('keydown', e => {
 
     }
     if (e.key == "s") {
-        player.velocity.x = 0
+
+
         keys.down.pressed = true
-        setTimeout(chargeJump, 50)
-        if (player.velocity.y == 0) player.velocity.y -= jump
+        if (jump < 100) jump += 5
 
     }
+
     if (e.key == "w") {
         console.log(collider)
     }
@@ -381,9 +451,16 @@ document.addEventListener('keyup', e => {
         if (player.velocity.x == 7) player.velocity.x = 0
     }
     if (e.key == "s") {
-        if (player.velocity.y == 0) player.velocity.y -= jump
+        if (player.velocity.y == 0) {
+            if(jump<16){
+                player.velocity.y -= 16
+            }
+            else player.velocity.y -= jump/3
 
-        clearTimeout(chargeJump)
+        }
+        jump = 10
+
+
         keys.down.pressed = false
     }
 
@@ -417,25 +494,25 @@ document.addEventListener('keyup', e => {
 
 
 
-function colliderPlataforma() {
-    plataforms.forEach(e => {
-        e.draw()
+// function colliderPlataforma() {
+//     plataforms.forEach(e => {
+//         e.draw()
 
-        //parte de cima
-        if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y && player.position.y < e.position.y + e.height) {
+//         //parte de cima
+//         if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y && player.position.y < e.position.y + e.height) {
 
-            player.velocity.y = 0
+//             player.velocity.y = 0
 
-        }
-        //parte de baixo
-        if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y + e.height && player.position.y < e.position.y + e.height) {
+//         }
+//         //parte de baixo
+//         if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y + e.height && player.position.y < e.position.y + e.height) {
 
-            player.velocity.y += 5
-        }
+//             player.velocity.y += 5
+//         }
 
 
-    })
-}
+//     })
+// }
 
 function colliderGround() {
     grounds.forEach(e => {
@@ -443,31 +520,38 @@ function colliderGround() {
         //parte de cima
         if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y && player.position.y < e.position.y + e.height) {
 
-            player.velocity.y = 0
+            // console.log('oi')
             collider.top = true
+
+
+            player.velocity.y = 0
+
 
         }
         else collider.top = false
         //parte de baixo
-        if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y + e.height && player.position.y < e.position.y + e.height) {
+        // if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y + e.height && player.position.y < e.position.y + e.height) {
 
-            player.velocity.y += 5
-            collider.bottom = true
+        //     player.velocity.y = -player.velocity.y
+        //     collider.bottom = true
 
-        }
-        else collider.bottom = false
+        // }
+        // else collider.bottom = false
         //lado esquerdo
         if (player.position.x + player.velocity.x < e.position.x + e.width && player.position.x + player.width > e.position.x && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
             player.velocity.x = 0
+            // console.log('left')
             collider.left = true
-            
+
         }
         else collider.left = false
         //lado direito
         if (player.position.x < e.position.x + e.width && player.position.x + player.width + player.velocity.x > e.position.x && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
             player.velocity.x = 0
+            // console.log('right')
+
             collider.right = true
-           
+
 
         }
         else collider.right = false
@@ -488,14 +572,51 @@ function colliderFrog() {
 }
 
 
+// function colliderEnemy() {
+//     if (enemies.length > 0) {
+//         enemies[0].update()
+//     }
+//     for (let i = 0; i < enemies.length; i++) {
+
+
+//         if (player.position.y + player.height >= enemies[i].position.y && player.position.y <= enemies[i].position.y + enemies[i].height && player.position.x + player.width >= enemies[i].position.x && player.position.x <= enemies[i].position.x + enemies[i].width) {
+//             vida.currentValue-=1
+//             enemies.splice(i, 1)
+//         }
+//     }
+// }
+
+
+let canTakeDamage = true
 function colliderEnemy() {
     enemies.forEach(e => {
         e.update()
-        
+        if (canTakeDamage && player.position.y + player.height >= e.position.y && player.position.y <= e.position.y + e.height && player.position.x + player.width >= e.position.x && player.position.x <= e.position.x + e.width) {
+            vida.currentValue -= 1
+            canTakeDamage = false
+            let invincibility = setTimeout(() => canTakeDamage = true, 1000)
+
+        }
     }
     )
 }
 
+
+
+
+function colliderMorango() {
+    if (morangos.length > 0) {
+        morangos[0].animation()
+    }
+    for (let i = 0; i < morangos.length; i++) {
+
+        morangos[i].draw()
+        if (player.position.y + player.height >= morangos[i].position.y && player.position.y <= morangos[i].position.y + morangos[i].height && player.position.x + player.width >= morangos[i].position.x && player.position.x <= morangos[i].position.x + morangos[i].width) {
+            vida.currentValue += 1
+            morangos.splice(i, 1)
+        }
+    }
+}
 
 
 
@@ -538,6 +659,8 @@ function moveLeft() {
             e.position.x += 7)
         grounds.forEach(e =>
             e.position.x += 7)
+        morangos.forEach(e =>
+            e.position.x += 7)
 
     }
     else canMoveLeft = 0
@@ -568,9 +691,114 @@ function moveRight() {
             e.position.x -= 7)
         grounds.forEach(e =>
             e.position.x -= 7)
+        morangos.forEach(e =>
+            e.position.x -= 7)
 
     }
     else canMoveRight = 0
+}
+
+
+let canMoveUp = 0
+let moovingUp = false
+function moveUp() {
+    // console.log('up')
+
+
+    grounds.forEach(element => {
+
+        if (player.position.x + player.width > element.position.x && player.position.x < element.position.x + element.width && player.position.y + player.height + player.velocity.y > element.position.y + element.height && player.position.y < element.position.y + element.height) {
+            canMoveUp += 1
+            moovingUp = false
+
+
+            plataforms.forEach(e =>
+                e.position.y += player.velocity.y
+            )
+            enemies.forEach(e => {
+                e.position.y += player.velocity.y
+                e.initialPosition.y += player.velocity.y
+            })
+            frogs.forEach(e =>
+                e.position.y += player.velocity.y)
+            grounds.forEach(e =>
+                e.position.y += player.velocity.y)
+            morangos.forEach(e =>
+                e.position.y += player.velocity.y)
+
+
+            player.velocity.y = 3
+
+        }
+
+    }
+    )
+    if (canMoveUp == 0) {
+        // player.velocity.y = 0
+        // console.log('up')
+
+        plataforms.forEach(e =>
+            e.position.y -= player.velocity.y
+        )
+        enemies.forEach(e => {
+            e.position.y -= player.velocity.y
+            e.initialPosition.y -= player.velocity.y
+        })
+        frogs.forEach(e =>
+            e.position.y -= player.velocity.y)
+        grounds.forEach(e =>
+            e.position.y -= player.velocity.y)
+        morangos.forEach(e =>
+            e.position.y -= player.velocity.y)
+        moovingUp = true
+    }
+    else {
+        canMoveUp = 0
+        moovingUp = false
+
+    }
+}
+
+
+
+let canMoveDown = 0
+let moovingDown = false
+function moveDown() {
+    // console.log('down')
+    grounds.forEach(element => {
+
+        if (player.position.x + player.width > element.position.x && player.position.x < element.position.x + element.width && player.position.y + player.height + player.velocity.y > element.position.y && player.position.y < element.position.y + element.height) {
+            canMoveDown += 1
+            moovingDown = false
+        }
+
+    }
+    )
+    if (canMoveDown == 0) {
+        // player.velocity.y = 0
+        // console.log('down')
+
+        plataforms.forEach(e =>
+            e.position.y -= player.velocity.y
+        )
+        enemies.forEach(e => {
+            e.position.y -= player.velocity.y
+            e.initialPosition.y -= player.velocity.y
+        })
+        frogs.forEach(e =>
+            e.position.y -= player.velocity.y)
+        grounds.forEach(e =>
+            e.position.y -= player.velocity.y)
+        morangos.forEach(e =>
+            e.position.y -= player.velocity.y)
+        moovingDown = true
+
+    }
+    else {
+        canMoveDown = 0
+        moovingDown = false
+    }
+
 }
 
 
@@ -651,12 +879,16 @@ function animate() {
     // c.fill()
     player.update()
     colliderGround()
-    colliderPlataforma()
+    // colliderPlataforma()
     colliderFrog()
     colliderEnemy()
-    player.position.y += player.velocity.y
-    player.position.x += player.velocity.x
+    colliderMorango()
+    vida.update()
+    if (keys.down.pressed) jumpBar.update()
 
+    // player.position.y += player.velocity.y
+    player.position.x += player.velocity.x
+    console.log(morango_sprite1.height)
     requestAnimationFrame(animate)
 }
 
@@ -677,19 +909,28 @@ function animate() {
 
 
 
-const player = new Player()
+
 
 // for( let i=0 ;i<14;i++) grounds.push(new Ground(100+i*100,700 , 3, 4))
 
-plataforms.push(new Plataform(400, 500, 1, 1))
-plataforms.push(new Plataform(500, 500, 2, 1))
-plataforms.push(new Plataform(600, 500, 2, 1))
-plataforms.push(new Plataform(700, 500, 2, 1))
-plataforms.push(new Plataform(800, 500, 3, 1))
+// grounds.push(new Ground(400, 100, 1, 1))
+// grounds.push(new Ground(500, 100, 2, 1))
+// grounds.push(new Ground(600, 100, 2, 1))
+// grounds.push(new Ground(700, 100, 2, 1))
+// grounds.push(new Ground(800, 100, 3, 1))
+grounds.push(new Ground(800, 700, 3, 1))
+grounds.push(new Ground(800, 600, 3, 1))
+grounds.push(new Ground(800, 500, 3, 1))
+grounds.push(new Ground(800, 400, 3, 1))
+grounds.push(new Ground(800, 300, 3, 1))
+grounds.push(new Ground(800, 200, 3, 1))
 frogs.push(new Frog(400, 400))
 frogs.push(new Frog(600, 400))
 frogs.push(new Frog(700, 500))
 enemies.push(new Enemy(700, 700, 500, 6))
+morangos.push(new Morango(400, 400))
+morangos.push(new Morango(500, 500))
+morangos.push(new Morango(500, 700))
 
 
 
