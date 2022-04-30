@@ -10,4 +10,12 @@ canvas{
     margin-left: auto;
     margin-right: auto;
     border: black solid 2px;
+    position: absolute;
+}
+
+#game{
+    z-index: 1;
+}
+#ui{
+    z-index: 2;
 }

@@ -1,5 +1,8 @@
-const canvas = document.querySelector('canvas')
+const canvas = document.querySelector('#game')
 const c = canvas.getContext('2d')
+
+const canvasUI = document.querySelector('#ui')
+const ui = canvasUI.getContext('2d')
 
 let sprites = ['sprite_gatinho.png',]
 
@@ -28,6 +31,9 @@ let frog_sprite_positionX = 0
 let frog_sprite_positionY = 0
 
 let frogs = []
+
+const frog_sprite1 = new Image()
+frog_sprite1.src = './assets/sprite_frog1.png'
 
 
 const enemy_sprite = new Image()
@@ -82,11 +88,16 @@ let tipoFPS = 0
 canvas.height = 900
 canvas.width = 1800
 c.imageSmoothingEnabled = false
+canvasUI.height = 900
+canvasUI.width = 1800
+ui.imageSmoothingEnabled = false
 
-let plataforms = []
+let alive = true
+
 
 const gravity = 0.8
 let jump = 0
+
 const keys = {
     right: {
         pressed: false
@@ -99,34 +110,12 @@ const keys = {
     }
 }
 
-const collider = {
-    left: false,
-    right: false,
-    top: false,
-    bottom: false
-}
 
 let looking = 'right'
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//-------------------------------------------------------------------------------------------------------------
 
 
 
@@ -206,6 +195,7 @@ class Player {
 const player = new Player()
 
 
+
 let jumpBar = {
     position: {
         x: player.position.x - 100,
@@ -218,16 +208,17 @@ let jumpBar = {
             x: player.position.x - 50,
             y: player.position.y - 50
         }
-        this.width = jump *2
+        this.width = jump * 2
         c.fillStyle = '#140333'
         c.fillRect(this.position.x, this.position.y, 200, this.height)
         c.fillStyle = '#94cc47'
-        c.fillRect(this.position.x, this.position.y, this.width, this.height)
+        c.fillRect(this.position.x + 5, this.position.y + 5, this.width - 10, this.height - 10)
     }
 
 
 }
 
+let plataforms = []
 class Plataform {
     constructor(positionx, positiony, sx, sy) {
         this.position = {
@@ -244,6 +235,7 @@ class Plataform {
         c.drawImage(plataform_sprite, 32 * (this.sx - 1), 32 * (this.sy - 1), 32, 32, this.position.x, this.position.y, this.height, this.width)
     }
 }
+
 
 
 let grounds = []
@@ -351,15 +343,29 @@ class Bg {
 
 
 let vida = {
-    initialValue: 3,
-    currentValue: 3,
+    initialValue: 1,
+    currentValue: 1,
     update: function () {
         if (this.currentValue > 3) this.currentValue = 3
         for (let i = 0; i < this.currentValue; i++) {
-            c.drawImage(morango_sprite1, 0, 0, morango_sprite1.width, morango_sprite1.height, i * 75, 0, 75, 75)
+            ui.drawImage(morango_sprite1, 0, 0, morango_sprite1.width, morango_sprite1.height, i * 75, 0, 75, 75)
         }
         if (this.currentValue <= 0) {
-            //programar a funcção de reinciar
+            alive = false
+            document.removeEventListener('keydown', keysFunctionDown)
+            document.removeEventListener('keyup', keysFunctionUp)
+            setTimeout(startGame, 1000)
+        }
+    }
+}
+
+let score = {
+    initialValue: 0,
+    currentValue: 0,
+    update: function () {
+
+        for (let i = 0; i < this.currentValue; i++) {
+            ui.drawImage(frog_sprite1, 0, 0, frog_sprite.width, frog_sprite.height, canvasUI.width - 225 + i * 75, 0, 75, 75)
         }
     }
 }
@@ -413,12 +419,8 @@ class Morango {
 
 
 
+function keysFunctionDown(e) {
 
-
-
-
-
-document.addEventListener('keydown', e => {
     if (e.key == "a" && !keys.down.pressed) {
         keys.left.pressed = true
         looking = 'left'
@@ -429,19 +431,13 @@ document.addEventListener('keydown', e => {
 
     }
     if (e.key == "s") {
-
-
         keys.down.pressed = true
         if (jump < 100) jump += 5
-
     }
 
-    if (e.key == "w") {
-        console.log(collider)
-    }
-})
+}
 
-document.addEventListener('keyup', e => {
+function keysFunctionUp(e) {
     if (e.key == "a") {
         keys.left.pressed = false
         if (player.velocity.x == -7) player.velocity.x = 0
@@ -452,27 +448,23 @@ document.addEventListener('keyup', e => {
     }
     if (e.key == "s") {
         if (player.velocity.y == 0) {
-            if(jump<16){
+            if (jump < 16) {
                 player.velocity.y -= 16
             }
-            else player.velocity.y -= jump/3
+            else player.velocity.y -= jump / 3
 
         }
         jump = 10
-
-
         keys.down.pressed = false
     }
-
-})
-
+}
 
 
 
+document.addEventListener('keydown', keysFunctionDown)
 
 
-
-
+document.addEventListener('keyup', keysFunctionUp)
 
 
 
@@ -488,73 +480,21 @@ document.addEventListener('keyup', e => {
 
 
 
-
-
-
-
-
-
-// function colliderPlataforma() {
-//     plataforms.forEach(e => {
-//         e.draw()
-
-//         //parte de cima
-//         if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y && player.position.y < e.position.y + e.height) {
-
-//             player.velocity.y = 0
-
-//         }
-//         //parte de baixo
-//         if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y + e.height && player.position.y < e.position.y + e.height) {
-
-//             player.velocity.y += 5
-//         }
-
-
-//     })
-// }
 
 function colliderGround() {
     grounds.forEach(e => {
         e.draw()
         //parte de cima
         if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y && player.position.y < e.position.y + e.height) {
-
-            // console.log('oi')
-            collider.top = true
-
-
             player.velocity.y = 0
-
-
         }
-        else collider.top = false
-        //parte de baixo
-        // if (player.position.x + player.width > e.position.x && player.position.x < e.position.x + e.width && player.position.y + player.height + player.velocity.y > e.position.y + e.height && player.position.y < e.position.y + e.height) {
-
-        //     player.velocity.y = -player.velocity.y
-        //     collider.bottom = true
-
-        // }
-        // else collider.bottom = false
-        //lado esquerdo
         if (player.position.x + player.velocity.x < e.position.x + e.width && player.position.x + player.width > e.position.x && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
             player.velocity.x = 0
-            // console.log('left')
-            collider.left = true
-
         }
-        else collider.left = false
         //lado direito
         if (player.position.x < e.position.x + e.width && player.position.x + player.width + player.velocity.x > e.position.x && player.position.y + player.height > e.position.y && player.position.y < e.position.y + e.height) {
             player.velocity.x = 0
-            // console.log('right')
-
-            collider.right = true
-
-
         }
-        else collider.right = false
     })
 }
 
@@ -567,24 +507,12 @@ function colliderFrog() {
         frogs[i].draw()
         if (player.position.y + player.height >= frogs[i].position.y && player.position.y <= frogs[i].position.y + frogs[i].height && player.position.x + player.width >= frogs[i].position.x && player.position.x <= frogs[i].position.x + frogs[i].width) {
             frogs.splice(i, 1)
+            score.currentValue += 1
+            score.update()
         }
     }
 }
 
-
-// function colliderEnemy() {
-//     if (enemies.length > 0) {
-//         enemies[0].update()
-//     }
-//     for (let i = 0; i < enemies.length; i++) {
-
-
-//         if (player.position.y + player.height >= enemies[i].position.y && player.position.y <= enemies[i].position.y + enemies[i].height && player.position.x + player.width >= enemies[i].position.x && player.position.x <= enemies[i].position.x + enemies[i].width) {
-//             vida.currentValue-=1
-//             enemies.splice(i, 1)
-//         }
-//     }
-// }
 
 
 let canTakeDamage = true
@@ -593,9 +521,9 @@ function colliderEnemy() {
         e.update()
         if (canTakeDamage && player.position.y + player.height >= e.position.y && player.position.y <= e.position.y + e.height && player.position.x + player.width >= e.position.x && player.position.x <= e.position.x + e.width) {
             vida.currentValue -= 1
+            updateUI()
             canTakeDamage = false
             let invincibility = setTimeout(() => canTakeDamage = true, 1000)
-
         }
     }
     )
@@ -614,9 +542,24 @@ function colliderMorango() {
         if (player.position.y + player.height >= morangos[i].position.y && player.position.y <= morangos[i].position.y + morangos[i].height && player.position.x + player.width >= morangos[i].position.x && player.position.x <= morangos[i].position.x + morangos[i].width) {
             vida.currentValue += 1
             morangos.splice(i, 1)
+            updateUI()
         }
     }
 }
+
+
+function updateUI() {
+    ui.clearRect(0, 0, canvasUI.width, canvasUI.height)
+    vida.update()
+    score.update()
+}
+
+
+
+
+
+
+
 
 
 
@@ -734,9 +677,6 @@ function moveUp() {
     }
     )
     if (canMoveUp == 0) {
-        // player.velocity.y = 0
-        // console.log('up')
-
         plataforms.forEach(e =>
             e.position.y -= player.velocity.y
         )
@@ -764,20 +704,15 @@ function moveUp() {
 let canMoveDown = 0
 let moovingDown = false
 function moveDown() {
-    // console.log('down')
     grounds.forEach(element => {
 
         if (player.position.x + player.width > element.position.x && player.position.x < element.position.x + element.width && player.position.y + player.height + player.velocity.y > element.position.y && player.position.y < element.position.y + element.height) {
             canMoveDown += 1
             moovingDown = false
         }
-
     }
     )
     if (canMoveDown == 0) {
-        // player.velocity.y = 0
-        // console.log('down')
-
         plataforms.forEach(e =>
             e.position.y -= player.velocity.y
         )
@@ -802,43 +737,6 @@ function moveDown() {
 }
 
 
-// function moveLeft() {
-
-//     bgD -= 3
-//     plataforms.forEach(e =>
-//         e.position.x -= 7
-//     )
-//     enemies.forEach(e => {
-//         e.position.x -= 7
-//         e.initialPosition.x -= 7
-//     })
-//     frogs.forEach(e =>
-//         e.position.x -= 7)
-//     grounds.forEach(e =>
-//         e.position.x -= 7)
-
-
-// }
-
-
-
-// function moveRight() {
-
-//     bgD += 3
-//     plataforms.forEach(e =>
-//         e.position.x += 7
-//     )
-//     enemies.forEach(e => {
-//         e.position.x += 7
-//         e.initialPosition.x += 7
-//     })
-//     frogs.forEach(e =>
-//         e.position.x += 7)
-//     grounds.forEach(e =>
-//         e.position.x += 7)
-
-
-// }
 
 
 
@@ -855,6 +753,17 @@ function moveDown() {
 
 
 
+function startGame() {
+    alive = true
+    document.addEventListener('keydown', keysFunctionDown)
+    document.addEventListener('keyup', keysFunctionUp)
+    vida.currentValue = vida.initialValue
+    score.currentValue = score.initialValue
+    updateUI()
+    player.position.x = 200
+    deleteAll()
+    loadLevel()
+}
 
 
 
@@ -870,26 +779,26 @@ function moveDown() {
 
 let bgD = 0
 function animate() {
-    c.clearRect(0, 0, canvas.width, canvas.height)
-    for (let i = -1; i < 5; i++) {
-        c.drawImage(bg_sprite, 0 + i * canvas.width + bgD, 0, canvas.width, canvas.height)
+    if (alive) {
+        for (let i = -1; i < 5; i++) {
+            c.drawImage(bg_sprite, 0 + i * canvas.width + bgD, 0, canvas.width, canvas.height)
+        }
+        player.update()
+        colliderGround()
+
+        colliderFrog()
+        colliderEnemy()
+        colliderMorango()
+        if (keys.down.pressed) jumpBar.update()
+        player.position.x += player.velocity.x
+        console.log(alive)
+        requestAnimationFrame(animate)
     }
-    // c.rect(0, 0, canvas.width, canvas.height)
-    // c.fillStyle = c.createPattern(bg_sprite,"repeat")
-    // c.fill()
-    player.update()
-    colliderGround()
-    // colliderPlataforma()
-    colliderFrog()
-    colliderEnemy()
-    colliderMorango()
-    vida.update()
-    if (keys.down.pressed) jumpBar.update()
-
-    // player.position.y += player.velocity.y
-    player.position.x += player.velocity.x
-    console.log(morango_sprite1.height)
-    requestAnimationFrame(animate)
+    else {
+        c.fillStyle = 'rgba(0, 0, 0, 0.03)'
+        c.fillRect(0, 0, canvas.width, canvas.height)
+        requestAnimationFrame(animate)
+    }
 }
 
 
@@ -906,52 +815,57 @@ function animate() {
 
 
 
+function loadLevel() {
+
+    grounds.push(new Ground(800, 700, 3, 1))
+    grounds.push(new Ground(800, 600, 3, 1))
+    grounds.push(new Ground(800, 500, 3, 1))
+    grounds.push(new Ground(800, 400, 3, 1))
+    grounds.push(new Ground(800, 300, 3, 1))
+    grounds.push(new Ground(800, 200, 3, 1))
+    frogs.push(new Frog(400, 400))
+    frogs.push(new Frog(600, 400))
+    frogs.push(new Frog(700, 500))
+    enemies.push(new Enemy(700, 700, 500, 6))
+    morangos.push(new Morango(400, 400))
+    morangos.push(new Morango(500, 500))
 
 
 
 
+    for (let i = 0; i <= canvas.width * 3 / 100; i++) {
+        grounds.push(new Ground(i * 100, canvas.height - 100, 3, 4))
+    }
+    for (let i = 0; i <= canvas.height - 200; i += 100) {
+        grounds.push(new Ground(0, i, 3, 2))
+    }
+    for (let i = 0; i <= canvas.height - 200; i += 100) {
+        grounds.push(new Ground(1200, i, 3, 2))
+    }
+    for (let i = 0; i <= canvas.height - 100; i += 100) {
+        grounds.push(new Ground(-100, i, 1, 1))
+    }
+    grounds.push(new Ground(0, canvas.height - 100, 1, 1))
+    for (let i = 0; i <= canvas.height - 100; i += 100) {
+        grounds.push(new Ground(-200, i, 1, 1))
+    }
+    grounds.push(new Ground(0, canvas.height - 100, 1, 1))
 
-// for( let i=0 ;i<14;i++) grounds.push(new Ground(100+i*100,700 , 3, 4))
-
-// grounds.push(new Ground(400, 100, 1, 1))
-// grounds.push(new Ground(500, 100, 2, 1))
-// grounds.push(new Ground(600, 100, 2, 1))
-// grounds.push(new Ground(700, 100, 2, 1))
-// grounds.push(new Ground(800, 100, 3, 1))
-grounds.push(new Ground(800, 700, 3, 1))
-grounds.push(new Ground(800, 600, 3, 1))
-grounds.push(new Ground(800, 500, 3, 1))
-grounds.push(new Ground(800, 400, 3, 1))
-grounds.push(new Ground(800, 300, 3, 1))
-grounds.push(new Ground(800, 200, 3, 1))
-frogs.push(new Frog(400, 400))
-frogs.push(new Frog(600, 400))
-frogs.push(new Frog(700, 500))
-enemies.push(new Enemy(700, 700, 500, 6))
-morangos.push(new Morango(400, 400))
-morangos.push(new Morango(500, 500))
-morangos.push(new Morango(500, 700))
-
-
-
-for (let i = 0; i <= canvas.width * 3 / 100; i++) {
-    grounds.push(new Ground(i * 100, canvas.height - 100, 3, 4))
 }
-for (let i = 0; i <= canvas.height - 200; i += 100) {
-    grounds.push(new Ground(0, i, 3, 2))
+
+function deleteAll() {
+    bgD = 0
+    plataforms = []
+    enemies = []
+    frogs = []
+    grounds = []
+    morangos = []
 }
-for (let i = 0; i <= canvas.height - 200; i += 100) {
-    grounds.push(new Ground(1200, i, 3, 2))
-}
-for (let i = 0; i <= canvas.height - 100; i += 100) {
-    grounds.push(new Ground(-100, i, 1, 1))
-}
-grounds.push(new Ground(0, canvas.height - 100, 1, 1))
-for (let i = 0; i <= canvas.height - 100; i += 100) {
-    grounds.push(new Ground(-200, i, 1, 1))
-}
-grounds.push(new Ground(0, canvas.height - 100, 1, 1))
+
 
 
 gatinho_sprite.onload = animate()
+startGame()
+
+
 
