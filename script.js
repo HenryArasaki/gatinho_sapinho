@@ -319,7 +319,8 @@ class Enemy {
     animation() {
         if (this.looking == 'right') enemy_sprite_positionY = 0
         else enemy_sprite_positionY = enemy_sprite_height
-        if (tipoFPS == 3 || tipoFPS == 6 || tipoFPS == 10) {
+        // if (tipoFPS == 3 || tipoFPS == 6 || tipoFPS == 10) {
+        if (tipoFPS == 10) {
             enemy_sprite_currentFrame += 1
             enemy_sprite_currentFrame = enemy_sprite_currentFrame % enemy_sprite_totalFrames
         }
@@ -343,8 +344,8 @@ class Bg {
 
 
 let vida = {
-    initialValue: 1,
-    currentValue: 1,
+    initialValue: 3,
+    currentValue: 3,
     update: function () {
         if (this.currentValue > 3) this.currentValue = 3
         for (let i = 0; i < this.currentValue; i++) {
@@ -365,7 +366,7 @@ let score = {
     update: function () {
 
         for (let i = 0; i < this.currentValue; i++) {
-            ui.drawImage(frog_sprite1, 0, 0, frog_sprite.width, frog_sprite.height, canvasUI.width - 225 + i * 75, 0, 75, 75)
+            ui.drawImage(frog_sprite1, 0, 0, frog_sprite1.width, frog_sprite1.height, i * 75, 100, 75, 75)
         }
     }
 }
@@ -759,10 +760,10 @@ function startGame() {
     document.addEventListener('keyup', keysFunctionUp)
     vida.currentValue = vida.initialValue
     score.currentValue = score.initialValue
-    updateUI()
     player.position.x = 200
     deleteAll()
     loadLevel()
+    updateUI()
 }
 
 
@@ -814,43 +815,121 @@ function animate() {
 
 
 
-
+//chao fica no 800
 function loadLevel() {
 
-    grounds.push(new Ground(800, 700, 3, 1))
-    grounds.push(new Ground(800, 600, 3, 1))
-    grounds.push(new Ground(800, 500, 3, 1))
-    grounds.push(new Ground(800, 400, 3, 1))
-    grounds.push(new Ground(800, 300, 3, 1))
-    grounds.push(new Ground(800, 200, 3, 1))
-    frogs.push(new Frog(400, 400))
-    frogs.push(new Frog(600, 400))
-    frogs.push(new Frog(700, 500))
-    enemies.push(new Enemy(700, 700, 500, 6))
-    morangos.push(new Morango(400, 400))
-    morangos.push(new Morango(500, 500))
+
+    // chao
+    for (let i = 0; i < 14; i++) {
+        grounds.push(new Ground(i * 100 + 100, canvas.height - 100, 1, 1))
+    }
+
+    grounds.push(new Ground(1500, canvas.height - 100, 2, 5))
+
+    
+    grounds.push(new Ground(1500, canvas.height - 200, 1, 3))
+    grounds.push(new Ground(1500, canvas.height - 300, 1, 3))
+    grounds.push(new Ground(1500, canvas.height - 400, 1, 3))
+    grounds.push(new Ground(1500, canvas.height - 500, 4, 4))
+
+    grounds.push(new Ground(1600, canvas.height - 500, 1, 1))
+    grounds.push(new Ground(1700, canvas.height - 500, 1, 1))
+    grounds.push(new Ground(1800, canvas.height - 500, 1, 1))
+    grounds.push(new Ground(1900, canvas.height - 500, 1, 1))
+    grounds.push(new Ground(2000, canvas.height - 500, 5, 4))
+    grounds.push(new Ground(2000, canvas.height - 400, 1, 2))
+    grounds.push(new Ground(2000, canvas.height - 300, 1, 2))
+    grounds.push(new Ground(2000, canvas.height - 200, 1, 2))
+    grounds.push(new Ground(2000, canvas.height - 100, 3, 5))
+
+    for (let i = 0; i < 9; i++) {
+        grounds.push(new Ground(i * 100 + 2100, canvas.height - 100, 1, 1))
+    }
+
+    for (let i = 0; i < 6; i++) {
+        grounds.push(new Ground(3000, canvas.height - 100 * i - 200, 1, 3))
+    }
+
+    grounds.push(new Ground(3000, 800, 2, 5))
+    grounds.push(new Ground(3000, 100, 4, 4))
+
+    grounds.push(new Ground(2400, 400, 3, 3))
+    grounds.push(new Ground(2500, 400, 2, 4))
+    grounds.push(new Ground(2600, 400, 3, 7))
+
+    for (let i = 0; i < 17; i++) {
+        grounds.push(new Ground(3100 + i * 100, 100, 1, 1))
+    }
+    grounds.push(new Ground(4800, 100, 5, 4))
+    grounds.push(new Ground(4800, 200, 1, 2))
+    grounds.push(new Ground(4800, 300, 1, 2))
+    grounds.push(new Ground(4800, 400, 1, 2))
+    grounds.push(new Ground(4800, 500, 3, 5))
+
+    for (let i = 0; i < 9; i++) {
+        grounds.push(new Ground(4900 + i * 100, 500, 1, 1))
+    }
+    grounds.push(new Ground(5800, 500, 2, 5))
+
+    for (let i = 0; i < 7; i++) {
+        grounds.push(new Ground(5800, 400 - 100 * i, 1, 3))
+    }
+    grounds.push(new Ground(5800, -300, 4, 4))
+
+    grounds.push(new Ground(5300, -100, 3, 3))
+    grounds.push(new Ground(5400, -100, 1, 4))
+
+    for (let i = 0; i < 13; i++) {
+        grounds.push(new Ground(5900 + i * 100, -300, 1, 1))
+    }
+
+    grounds.push(new Ground(7200, -300, 5, 4))
+    grounds.push(new Ground(7200, -200, 3, 5))
+
+    grounds.push(new Ground(7300, -200, 1, 1))
+    grounds.push(new Ground(7400, -200, 1, 1))
+
+    grounds.push(new Ground(7500, -200, 5, 4))
+    grounds.push(new Ground(7500, -100, 3, 5))
+
+    for (let i = 0; i < 12; i++) {
+        grounds.push(new Ground(7600 + i * 100, -100, 1, 1))
+    }
+
+    //parede esquerda
+    grounds.push(new Ground(0, 800, 3, 5))
+
+    for (let i = 0; i < 15; i++) {
+        grounds.push(new Ground(0, -700 + i*100, 1, 2))
+    }
+    grounds.push(new Ground(0, -800, 3, 6))
+
+
+    for (let i = 0; i < 87; i++) {
+        grounds.push(new Ground(i * 100, -800, 1, 6))
+    }
+    grounds.push(new Ground(8700, -800, 4, 5))
+    grounds.push(new Ground(8700, -700, 1, 3))
+    grounds.push(new Ground(8700, -600, 1, 3))
+    grounds.push(new Ground(8700, -500, 1, 3))
+    grounds.push(new Ground(8700, -400, 1, 3))
+
+
+
+    enemies.push(new Enemy(3600,0,700,2))
+
+    enemies.push(new Enemy(5900,-400,700,2))
+    enemies.push(new Enemy(6500,-400,700,2))
 
 
 
 
-    for (let i = 0; i <= canvas.width * 3 / 100; i++) {
-        grounds.push(new Ground(i * 100, canvas.height - 100, 3, 4))
-    }
-    for (let i = 0; i <= canvas.height - 200; i += 100) {
-        grounds.push(new Ground(0, i, 3, 2))
-    }
-    for (let i = 0; i <= canvas.height - 200; i += 100) {
-        grounds.push(new Ground(1200, i, 3, 2))
-    }
-    for (let i = 0; i <= canvas.height - 100; i += 100) {
-        grounds.push(new Ground(-100, i, 1, 1))
-    }
-    grounds.push(new Ground(0, canvas.height - 100, 1, 1))
-    for (let i = 0; i <= canvas.height - 100; i += 100) {
-        grounds.push(new Ground(-200, i, 1, 1))
-    }
-    grounds.push(new Ground(0, canvas.height - 100, 1, 1))
 
+    frogs.push(new Frog(5300, 0))
+    frogs.push(new Frog(400, 700))
+
+
+    morangos.push(new Morango(200,550))
 }
 
 function deleteAll() {
