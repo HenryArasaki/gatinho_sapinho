@@ -854,7 +854,7 @@ function loadLevel() {
     grounds.push(new Ground(3000, 100, 4, 4))
 
     grounds.push(new Ground(2400, 400, 3, 3))
-    grounds.push(new Ground(2500, 400, 2, 4))
+    grounds.push(new Ground(2500, 400, 3, 4))
     grounds.push(new Ground(2600, 400, 3, 7))
 
     for (let i = 0; i < 17; i++) {
@@ -899,14 +899,18 @@ function loadLevel() {
     //parede esquerda
     grounds.push(new Ground(0, 800, 3, 5))
 
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 25; i++) {
         grounds.push(new Ground(0, -700 + i*100, 1, 2))
     }
-    grounds.push(new Ground(0, -800, 3, 6))
+    grounds.push(new Ground(0, -1800, 3, 6))
 
 
     for (let i = 0; i < 87; i++) {
-        grounds.push(new Ground(i * 100, -800, 1, 6))
+        grounds.push(new Ground(i * 100, -1800, 1, 6))
+    }
+
+    for (let i = 0; i < 25; i++) {
+        grounds.push(new Ground(8700, -1800 + i*100, 1, 3))
     }
     grounds.push(new Ground(8700, -800, 4, 5))
     grounds.push(new Ground(8700, -700, 1, 3))
@@ -925,8 +929,8 @@ function loadLevel() {
 
 
 
-    frogs.push(new Frog(5300, 0))
-    frogs.push(new Frog(400, 700))
+    frogs.push(new Frog(200, 700))
+    frogs.push(new Frog(5300, -200))
 
 
     morangos.push(new Morango(200,550))
