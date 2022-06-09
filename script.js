@@ -161,6 +161,8 @@ class Player {
         if ((!keys.left.pressed && !keys.right.pressed) || keys.down.pressed) this.velocity.x = 0
         if (keys.left.pressed && keys.right.pressed) this.velocity.x = 0
 
+
+
         this.draw()
         this.animation()
 
@@ -325,6 +327,19 @@ class Enemy {
             enemy_sprite_currentFrame = enemy_sprite_currentFrame % enemy_sprite_totalFrames
         }
     }
+}
+
+let mortes = []
+class Morte {
+    constructor(positionx, positiony) {
+        this.position = {
+            x: positionx,
+            y: positiony
+        }
+        this.width = 100
+        this.height = 100
+    }
+
 }
 
 
@@ -549,6 +564,22 @@ function colliderMorango() {
 }
 
 
+function colliderMorte() {
+
+    for (let i = 0; i < mortes.length; i++) {
+     
+
+        if (player.position.y + player.height >= mortes[i].position.y && player.position.y <= mortes[i].position.y + mortes[i].height && player.position.x + player.width >= mortes[i].position.x && player.position.x <= mortes[i].position.x + mortes[i].width) {
+            console.log('collidermorte')
+            alive = false
+            document.removeEventListener('keydown', keysFunctionDown)
+            document.removeEventListener('keyup', keysFunctionUp)
+            setTimeout(startGame, 1000)
+        }
+    }
+}
+
+
 function updateUI() {
     ui.clearRect(0, 0, canvasUI.width, canvasUI.height)
     vida.update()
@@ -605,6 +636,8 @@ function moveLeft() {
             e.position.x += 7)
         morangos.forEach(e =>
             e.position.x += 7)
+        mortes.forEach(e =>
+            e.position.x += 7)
 
     }
     else canMoveLeft = 0
@@ -636,6 +669,8 @@ function moveRight() {
         grounds.forEach(e =>
             e.position.x -= 7)
         morangos.forEach(e =>
+            e.position.x -= 7)
+        mortes.forEach(e =>
             e.position.x -= 7)
 
     }
@@ -691,6 +726,8 @@ function moveUp() {
             e.position.y -= player.velocity.y)
         morangos.forEach(e =>
             e.position.y -= player.velocity.y)
+        mortes.forEach(e =>
+            e.position.y -= player.velocity.y)
         moovingUp = true
     }
     else {
@@ -713,6 +750,7 @@ function moveDown() {
         }
     }
     )
+
     if (canMoveDown == 0) {
         plataforms.forEach(e =>
             e.position.y -= player.velocity.y
@@ -726,6 +764,8 @@ function moveDown() {
         grounds.forEach(e =>
             e.position.y -= player.velocity.y)
         morangos.forEach(e =>
+            e.position.y -= player.velocity.y)
+        mortes.forEach(e =>
             e.position.y -= player.velocity.y)
         moovingDown = true
 
@@ -790,9 +830,11 @@ function animate() {
         colliderFrog()
         colliderEnemy()
         colliderMorango()
+        colliderMorte()
         if (keys.down.pressed) jumpBar.update()
         player.position.x += player.velocity.x
         console.log(alive)
+        updateUI()
         requestAnimationFrame(animate)
     }
     else {
@@ -826,7 +868,7 @@ function loadLevel() {
 
     grounds.push(new Ground(1500, canvas.height - 100, 2, 5))
 
-    
+
     grounds.push(new Ground(1500, canvas.height - 200, 1, 3))
     grounds.push(new Ground(1500, canvas.height - 300, 1, 3))
     grounds.push(new Ground(1500, canvas.height - 400, 1, 3))
@@ -857,83 +899,145 @@ function loadLevel() {
     grounds.push(new Ground(2500, 400, 3, 4))
     grounds.push(new Ground(2600, 400, 3, 7))
 
-    for (let i = 0; i < 17; i++) {
-        grounds.push(new Ground(3100 + i * 100, 100, 1, 1))
-    }
-    grounds.push(new Ground(4800, 100, 5, 4))
-    grounds.push(new Ground(4800, 200, 1, 2))
-    grounds.push(new Ground(4800, 300, 1, 2))
-    grounds.push(new Ground(4800, 400, 1, 2))
-    grounds.push(new Ground(4800, 500, 3, 5))
 
-    for (let i = 0; i < 9; i++) {
-        grounds.push(new Ground(4900 + i * 100, 500, 1, 1))
-    }
-    grounds.push(new Ground(5800, 500, 2, 5))
 
-    for (let i = 0; i < 7; i++) {
-        grounds.push(new Ground(5800, 400 - 100 * i, 1, 3))
-    }
-    grounds.push(new Ground(5800, -300, 4, 4))
+    grounds.push(new Ground(3100, 100, 1, 1))
+    grounds.push(new Ground(3200, 100, 1, 1))
+    grounds.push(new Ground(3300, 100, 1, 1))
+    grounds.push(new Ground(3400, 100, 1, 1))
+    grounds.push(new Ground(3500, 100, 5, 4))
 
-    grounds.push(new Ground(5300, -100, 3, 3))
-    grounds.push(new Ground(5400, -100, 1, 4))
+    grounds.push(new Ground(3500, 200, 1, 7))
+    grounds.push(new Ground(3500, 300, 1, 7))
+    grounds.push(new Ground(3500, 400, 1, 7))
+    grounds.push(new Ground(3500, 500, 1, 7))
+
+    grounds.push(new Ground(3500, 600, 3, 5))
+
+    grounds.push(new Ground(3600, 600, 1, 1))
+    grounds.push(new Ground(3700, 600, 1, 1))
+    grounds.push(new Ground(3800, 600, 5, 4))
+    grounds.push(new Ground(3800, 700, 1, 7))
+    grounds.push(new Ground(3800, 800, 3, 5))
+
+
+    for (let i = 0; i < 26; i++) {
+        grounds.push(new Ground(3900 + i * 100, 800, 1, 1))
+    }
+
+    grounds.push(new Ground(6400, 800, 2, 5))
+
+    for (let i = 0; i < 16; i++) {
+        grounds.push(new Ground(6400, 700 - i * 100, 1, 3))
+    }
+
+    grounds.push(new Ground(6400, -900, 4, 4))
+
+    for (let i = 0; i < 14; i++) {
+        grounds.push(new Ground(6500 + i * 100, -900, 1, 1))
+    }
+
+    grounds.push(new Ground(7900, -900, 5, 4))
+
+    for (let i = 0; i < 23; i++) {
+        grounds.push(new Ground(7900, -800 + i * 100, 1, 2))
+    }
+
+    grounds.push(new Ground(12800, -500, 4, 4))
+
+    for (let i = 0; i < 19; i++) {
+        grounds.push(new Ground(12800, -500 + i * 100, 1, 3))
+    }
 
     for (let i = 0; i < 13; i++) {
-        grounds.push(new Ground(5900 + i * 100, -300, 1, 1))
+        grounds.push(new Ground(12900 + i * 100, -500, 1, 1))
     }
 
-    grounds.push(new Ground(7200, -300, 5, 4))
-    grounds.push(new Ground(7200, -200, 3, 5))
+    grounds.push(new Ground(14200, -500, 5, 4))
 
-    grounds.push(new Ground(7300, -200, 1, 1))
-    grounds.push(new Ground(7400, -200, 1, 1))
+    for (let i = 0; i < 19; i++) {
+        grounds.push(new Ground(14200, -400 + i * 100, 1, 2))
+    }
+    for (let i = 0; i < 19; i++) {
+        grounds.push(new Ground(14900, -400 + i * 100, 1, 3))
+    }
+    grounds.push(new Ground(14900, -500, 1, 3))
 
-    grounds.push(new Ground(7500, -200, 5, 4))
-    grounds.push(new Ground(7500, -100, 3, 5))
-
-    for (let i = 0; i < 12; i++) {
-        grounds.push(new Ground(7600 + i * 100, -100, 1, 1))
+    for (let i = 0; i < 13; i++) {
+        grounds.push(new Ground(15000 + i *100, -500, 1, 1))
     }
 
-    //parede esquerda
-    grounds.push(new Ground(0, 800, 3, 5))
 
-    for (let i = 0; i < 25; i++) {
-        grounds.push(new Ground(0, -700 + i*100, 1, 2))
+
+
+    //plataformas
+    grounds.push(new Ground(3700, -200, 5, 6))
+    grounds.push(new Ground(3800, -200, 4, 6))
+    grounds.push(new Ground(3900, -200, 5, 5))
+
+    grounds.push(new Ground(4200, -500, 5, 6))
+    grounds.push(new Ground(4300, -500, 4, 6))
+    grounds.push(new Ground(4400, -500, 5, 5))
+
+
+    grounds.push(new Ground(4600, -900, 5, 6))
+    grounds.push(new Ground(4700, -900, 4, 6))
+    grounds.push(new Ground(4800, -900, 5, 5))
+
+
+    grounds.push(new Ground(5200, -900, 5, 6))
+    grounds.push(new Ground(5300, -900, 5, 5))
+
+    grounds.push(new Ground(5800, -900, 5, 6))
+    grounds.push(new Ground(5900, -900, 5, 5))
+
+    grounds.push(new Ground(8400, -1100, 5, 6))
+    grounds.push(new Ground(8500, -1100, 4, 6))
+    grounds.push(new Ground(8600, -1100, 4, 6))
+    grounds.push(new Ground(8700, -1100, 5, 5))
+
+    grounds.push(new Ground(9200, -1300, 5, 6))
+    grounds.push(new Ground(9300, -1300, 4, 6))
+    grounds.push(new Ground(9400, -1300, 5, 5))
+
+    grounds.push(new Ground(10000, -1300, 5, 6))
+    grounds.push(new Ground(10100, -1300, 4, 6))
+    grounds.push(new Ground(10200, -1300, 5, 5))
+
+    grounds.push(new Ground(10800, -1100, 5, 6))
+    grounds.push(new Ground(10900, -1100, 4, 6))
+    grounds.push(new Ground(11000, -1100, 5, 5))
+
+    grounds.push(new Ground(11400, -900, 5, 6))
+    grounds.push(new Ground(11500, -900, 5, 5))
+
+    grounds.push(new Ground(11900, -800, 5, 6))
+    grounds.push(new Ground(12000, -800, 5, 5))
+
+    grounds.push(new Ground(12300, -700, 5, 6))
+    grounds.push(new Ground(12400, -700, 5, 5))
+
+    grounds.push(new Ground(13400, -1000, 5, 6))
+    grounds.push(new Ground(13500, -1000, 4, 6))
+    grounds.push(new Ground(13600, -1000, 5, 5))
+
+
+
+    //sapos
+    frogs.push(new Frog(2500, 300))
+    frogs.push(new Frog(7700, -1000))
+    frogs.push(new Frog(13500, -1100))
+
+    //enemy
+    enemies.push(new Enemy(6900, -1000, 600, 3))
+    enemies.push(new Enemy(12900, -600, 600, 3))
+    enemies.push(new Enemy(13500, -600, 600, 3))
+
+
+    for (let i = 0; i < 170; i++) {
+        mortes.push(new Morte(-200 + i * 100, 1300))
     }
-    grounds.push(new Ground(0, -1800, 3, 6))
 
-
-    for (let i = 0; i < 87; i++) {
-        grounds.push(new Ground(i * 100, -1800, 1, 6))
-    }
-
-    for (let i = 0; i < 25; i++) {
-        grounds.push(new Ground(8700, -1800 + i*100, 1, 3))
-    }
-    grounds.push(new Ground(8700, -800, 4, 5))
-    grounds.push(new Ground(8700, -700, 1, 3))
-    grounds.push(new Ground(8700, -600, 1, 3))
-    grounds.push(new Ground(8700, -500, 1, 3))
-    grounds.push(new Ground(8700, -400, 1, 3))
-
-
-
-    enemies.push(new Enemy(3600,0,700,2))
-
-    enemies.push(new Enemy(5900,-400,700,2))
-    enemies.push(new Enemy(6500,-400,700,2))
-
-
-
-
-
-    frogs.push(new Frog(200, 700))
-    frogs.push(new Frog(5300, -200))
-
-
-    morangos.push(new Morango(200,550))
 }
 
 function deleteAll() {
@@ -943,6 +1047,7 @@ function deleteAll() {
     frogs = []
     grounds = []
     morangos = []
+    mortes = []
 }
 
 
